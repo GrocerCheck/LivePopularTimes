@@ -15,9 +15,9 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
     long_description = f.read()
 
 setup(
-    name='populartimes',
-    version='2.0',
-    description='Populartimes Google Maps',
+    name='LivePopularTimes',
+    version='1.0',
+    description='LivePopularTimes for Google Maps',
     long_description=long_description,
     url='https://github.com/ihasdapie/LivePopularTimes',
     author='riedmaph;m-wrzr;SweetyGott;ihasdapie',
