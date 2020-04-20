@@ -1,5 +1,5 @@
 """
-https://github.com/m-wrzr/populartimes
+https://github.com/ihasdapie/LivePopularTimes
 """
 
 # Always prefer setuptools over distutils
@@ -19,8 +19,8 @@ setup(
     version='2.0',
     description='Populartimes Google Maps',
     long_description=long_description,
-    url='https://github.com/m-wrzr/populartimes',
-    author='riedmaph;m-wrzr;SweetyGott',
+    url='https://github.com/ihasdapie/LivePopularTimes',
+    author='riedmaph;m-wrzr;SweetyGott;ihasdapie',
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -33,7 +33,7 @@ setup(
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3.6.1',
     ],
-    keywords='populartimes googlemaps',
+    keywords='populartimes googlemaps live',
 
     # TODO
     # You can just specify the packages manually here if your project is
