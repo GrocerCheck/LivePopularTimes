@@ -4,7 +4,8 @@
 
 A library that extends the populartimes library to include support for **Live** *Google Maps* popular times data, which is currently inaccessible via Google's API.
 
-
+Installation: 
+`python3 -m pip install --upgrade git+https://github.com/GrocerCheck/LivePopularTimes`
 
 *The README.md for m-wrzr's original populartimes library can be found below*
 
