@@ -38,13 +38,13 @@ COMMON_HEADERS = {
     "Accept-Encoding": "gzip"
 }
 
-"""HERE_BASE_URL = "https://places.ls.hereapi.com/places/v1/"
+HERE_BASE_URL = "https://places.ls.hereapi.com/places/v1/"
 HERE_GEOCODE_BASE_URL = "https://revgeocode.search.hereapi.com/v1/"
 BROWSE_URL = HERE_BASE_URL + "browse?in={},{};r={}&result_types=place&tf=plain&cs=&size={}&cat={}&apiKey={}"
 GEOCODE_URL = "https://geocode.xyz/{},{}?geoit=json&auth={}"
 GEOCODE_HERE_URL = HERE_GEOCODE_BASE_URL + "revgeocode?at={},{}&lang=it-IT&apiKey={}"
 GEOCODE_ARCGIS_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&featureTypes=&location={},{}"
-"""
+
 
 class PopulartimesException(Exception):
     """Exception raised for errors in the input.
@@ -58,6 +58,102 @@ class PopulartimesException(Exception):
         self.expression = expression
         self.message = message
 
+
+def rect_circle_collision(rect_left, rect_right, rect_bottom, rect_top, circle_x, circle_y, radius):
+    # returns true iff circle intersects rectangle
+
+    def clamp(val, min, max):
+        # limits value to the range min..max
+        if val < min:
+            return min
+        if val > max:
+            return max
+        return val
+
+    # Find the closest point to the circle within the rectangle
+    closest_x = clamp(circle_x, rect_left, rect_right);
+    closest_y = clamp(circle_y, rect_bottom, rect_top);
+
+    # Calculate the distance between the circle's center and this closest point
+    dist_x = circle_x - closest_x;
+    dist_y = circle_y - closest_y;
+
+    # If the distance is less than the circle's radius, an intersection occurs
+    dist_sq = (dist_x * dist_x) + (dist_y * dist_y);
+
+    return dist_sq < (radius * radius);
+
+def cover_rect_with_cicles(w, h, r):
+    """
+    fully cover a rectangle of given width and height with
+    circles of radius r. This algorithm uses a hexagonal
+    honeycomb pattern to cover the area.
+    :param w: width of rectangle
+    :param h: height of reclangle
+    :param r: radius of circles
+    :return: list of circle centers (x,y)
+    """
+
+    #initialize result list
+    res = []
+
+    # horizontal distance between circle centers
+    x_dist = math.sqrt(3) * r
+    # vertical distance between circle centers
+    y_dist = 1.5 * r
+    # number of circles per row (different for even/odd rows)
+    cnt_x_even = math.ceil(w / x_dist)
+    cnt_x_odd = math.ceil((w - x_dist/2) / x_dist) + 1
+    # number of rows
+    cnt_y = math.ceil((h-r) / y_dist) + 1
+
+    y_offs = 0.5 * r
+    for y in range(cnt_y):
+        if y % 2 == 0:
+            # shift even rows to the right
+            x_offs = x_dist/2
+            cnt_x = cnt_x_even
+        else:
+            x_offs = 0
+            cnt_x = cnt_x_odd
+
+        for x in range(cnt_x):
+            res.append((x_offs + x*x_dist, y_offs + y*y_dist))
+
+    # top-right circle is not always required
+    if res and not rect_circle_collision(0, w, 0, h, res[-1][0], res[-1][1], r):
+        res = res[0:-1]
+
+    return res
+
+def get_circle_centers(b1, b2, radius):
+    """
+    the function covers the area within the bounds with circles
+    :param b1: south-west bounds [lat, lng]
+    :param b2: north-east bounds [lat, lng]
+    :param radius: specified radius, adapt for high density areas
+    :return: list of circle centers that cover the area between lower/upper
+    """
+
+    sw = Point(b1)
+    ne = Point(b2)
+
+    # north/east distances
+    dist_lat = vincenty(Point(sw[0], sw[1]), Point(ne[0], sw[1])).meters
+    dist_lng = vincenty(Point(sw[0], sw[1]), Point(sw[0], ne[1])).meters
+
+    circles = cover_rect_with_cicles(dist_lat, dist_lng, radius)
+    cords = [
+        VincentyDistance(meters=c[0])
+        .destination(
+            VincentyDistance(meters=c[1])
+            .destination(point=sw, bearing=90),
+            bearing=0
+        )[:2]
+        for c in circles
+    ]
+
+    return cords
 
 def get_info_from_geocode_arcgis(lat, lng):
     info = json.loads(requests.get(GEOCODE_ARCGIS_URL.format(lng, lat)).text)
@@ -92,7 +188,7 @@ def get_info_from_geocode(lat, lng):
     info["items"][0]["city"] = ""
     if ("city" in info["items"][0]["address"]):
         info["items"][0]["city"] = info["items"][0]["address"]["city"]
-    
+
     return info["items"][0]
 
 def get_places_by_search(q):
@@ -389,7 +485,7 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
     :param place_identifier: name and address string
     :return:
     """
-    
+
     jdata = make_google_search_request(place_identifier)
 
     # get info from result array, has to be adapted if backend api changes
