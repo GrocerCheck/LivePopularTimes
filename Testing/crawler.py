@@ -406,6 +406,7 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
     if (get_detail == True):
         detail = {
             "name": index_get(info, 11),
+            "place_id": index_get(info, 78),
             "address": index_get(info, 39),
             "coordinates": {
                 "lat": index_get(info, 9, 2),
@@ -413,6 +414,7 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
             },
             "categories": index_get(info, 13),
             "place_types": index_get(info, 76),
+            
         }
 
     # extract wait times and convert to minutes
