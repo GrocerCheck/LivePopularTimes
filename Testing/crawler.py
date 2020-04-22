@@ -1,3 +1,6 @@
+#MyFile
+
+#Popular
 #!/usr/bin/env python
 # -*- coding: utf-8 -*-
 
@@ -35,14 +38,6 @@ COMMON_HEADERS = {
     "Accept-Encoding": "gzip"
 }
 
-HERE_BASE_URL = "https://places.ls.hereapi.com/places/v1/"
-HERE_GEOCODE_BASE_URL = "https://revgeocode.search.hereapi.com/v1/"
-BROWSE_URL = HERE_BASE_URL + "browse?in={},{};r={}&result_types=place&tf=plain&cs=&size={}&cat={}&apiKey={}"
-GEOCODE_URL = "https://geocode.xyz/{},{}?geoit=json&auth={}"
-GEOCODE_HERE_URL = HERE_GEOCODE_BASE_URL + "revgeocode?at={},{}&lang=it-IT&apiKey={}"
-GEOCODE_ARCGIS_URL = "https://geocode.arcgis.com/arcgis/rest/services/World/GeocodeServer/reverseGeocode?f=pjson&featureTypes=&location={},{}"
-
-
 class PopulartimesException(Exception):
     """Exception raised for errors in the input.
 
@@ -56,54 +51,21 @@ class PopulartimesException(Exception):
         self.message = message
 
 
-def get_info_from_geocode_arcgis(lat, lng):
-    info = json.loads(requests.get(GEOCODE_ARCGIS_URL.format(lng, lat)).text)
 
-    if ("address" not in info):
-        raise Exception("No info from geocode")
-
-    if ("Address" in info["address"]):
-        info["staddress"] = info["address"]["Address"]
-
-    if ("City" in info["address"]):
-        info["city"] = info["address"]["City"]
-
-    return info
-
-def get_info_from_geocode(lat, lng):
-    if (os.environ.get('HERE_PLACE_API_KEY') == None):
-        raise Exception("You need to add an environment variable for HERE_PLACE_API_KEY")
-
-    if (randrange(0,3) != 0):
-        return get_info_from_geocode_arcgis(lat, lng)
-
-    info = json.loads(requests.get(GEOCODE_HERE_URL.format(lat, lng, os.environ.get('HERE_PLACE_API_KEY'))).text)
-
-    if ("items" not in info):
-        raise Exception("No info from geocode")
-
-    info["items"][0]["staddress"] = ""
-    if ("street" in info["items"][0]["address"]):
-        info["items"][0]["staddress"] = info["items"][0]["address"]["street"]
-
-    info["items"][0]["city"] = ""
-    if ("city" in info["items"][0]["address"]):
-        info["items"][0]["city"] = info["items"][0]["address"]["city"]
-
-    return info["items"][0]
-
-def get_places_by_search(q):
+def get_places_by_search(query):
     """
-    Make an API request to google web service to retrieve a list of places
+    Searches google for places according to the query and returns matching places & details
+    :param query: string to search for
     """
     places = []
-    json = make_google_search_request(q)
+    json = make_google_search_request(query) #consider adding other google search parameters
     json = json[0][1]
+    inflist=[]
     for x in range(1, len(json)-1):
         info = index_get(json[x], 14)
-
         places.append({
             "name": index_get(info, 11),
+            "place_id": index_get(info, 78),
             "address": index_get(info, 39),
             "location": {
                 "lat": index_get(info, 9, 2),
@@ -114,38 +76,7 @@ def get_places_by_search(q):
         })
 
     return places
-
-def get_places_by_query(query):
-    """
-    make an API request to the HERE PLACES API to retrieve a list of places by geo
-    :param query: the parameters to make the request
-    :return: None if not available or the list of places
-    """
-
-    if (os.environ.get("HERE_PLACE_API_KEY") == None):
-        raise Exception("No HERE_PLACE_API_KEY in your environment")
-
-    if ("limit" not in query):
-        query["limit"] = 35
-
-    _lat = query["location"]["lat"]
-    _lng = query["location"]["lng"]
-
-    browse_query = BROWSE_URL.format(
-        _lat, _lng, query["radius"], query["limit"], ",".join(query["types"]), os.environ.get("HERE_PLACE_API_KEY")
-    )
-
-    res = json.loads(requests.get(browse_query, headers=COMMON_HEADERS).text)
-    if ("results" not in res):
-        raise Exception("No results")
-
-    if ("items" not in res["results"]):
-        raise Exception("No items")
-
-    return res["results"]["items"]
-
-
-
+    
 def worker_radar():
     """
       worker that gets coordinates of queue and starts radar search
@@ -155,7 +86,6 @@ def worker_radar():
         item = q_radar.get()
         get_radar(item)
         q_radar.task_done()
-
 
 def get_radar(item):
     _lat, _lng = item["pos"]
@@ -202,7 +132,6 @@ def get_radar(item):
         item["last_req"] = time()
         q_radar.put(item)
 
-
 def worker_detail():
     """
     worker that gets item of queue and starts detailed data retrieval
@@ -212,7 +141,6 @@ def worker_detail():
         item = q_detail.get()
         get_detail(item)
         q_detail.task_done()
-
 
 def get_popularity_for_day(popularity):
     """
@@ -290,6 +218,8 @@ def index_get(array, *argv):
     except (IndexError, TypeError):
         return None
 
+
+
 def add_optional_parameters(detail_json, detail, rating, rating_n, popularity, current_popularity, time_spent, detailFromGoogle={}):
     """
     check for optional return parameters and add them to the result json
@@ -332,20 +262,9 @@ def add_optional_parameters(detail_json, detail, rating, rating_n, popularity, c
         detail_json.update(detailFromGoogle)
 
     return detail_json
-
-def get_detail(place_id):
-    """
-    loads data for a given area
-    :return:
-    """
-    global results
-
-    # detail_json = get_populartimes(params["API_key"], place_id)
-    detail_json = get_populartimes_by_detail(params["API_key"], g_places[place_id])
-
-    if params["all_places"] or "populartimes" in detail_json:
-        results.append(detail_json)
-
+    
+    
+    
 def make_google_search_request(query_string):
     params_url = {
         "tbm": "map",
@@ -364,7 +283,6 @@ def make_google_search_request(query_string):
     }
 
     search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
-
     # noinspection PyUnresolvedReferences
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 
@@ -380,13 +298,95 @@ def make_google_search_request(query_string):
     jdata = json.loads(data)["d"]
     return json.loads(jdata[4:])
 
+
+def check_response_code(resp):
+    """
+    check if query quota has been surpassed or other errors occured
+    :param resp: json response
+    :return:
+    """
+    if resp["status"] == "OK" or resp["status"] == "ZERO_RESULTS":
+        return
+
+    if resp["status"] == "REQUEST_DENIED":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "Request was denied, the API key is invalid.")
+
+    if resp["status"] == "OVER_QUERY_LIMIT":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "You exceeded your Query Limit for Google Places API Web Service, "
+                                    "check https://developers.google.com/places/web-service/usage "
+                                    "to upgrade your quota.")
+
+    if resp["status"] == "INVALID_REQUEST":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "The query string is malformed, "
+                                    "check if your formatting for lat/lng and radius is correct.")
+
+    if resp["status"] == "NOT_FOUND":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "The place ID was not found and either does not exist or was retired.")
+
+    raise PopulartimesException("Google Places " + resp["status"],
+                                "Unidentified error with the Places API, please check the response code")
+
+
+def run(_params):
+    """
+    wrap execution logic in method, for later external call
+    :return:
+    """
+    global params, g_places, q_radar, q_detail, results
+
+    start = datetime.datetime.now()
+
+    # shared variables
+    params = _params
+    q_radar, q_detail = Queue(), Queue()
+    g_places, results = dict(), list()
+
+    logging.info("Adding places to queue...")
+
+    # threading for radar search
+    for i in range(params["n_threads"]):
+        t = threading.Thread(target=worker_radar)
+        t.daemon = True
+        t.start()
+
+    # cover search area with circles
+    bounds = params["bounds"]
+    for lat, lng in get_circle_centers([bounds["lower"]["lat"], bounds["lower"]["lng"]],  # southwest
+                                       [bounds["upper"]["lat"], bounds["upper"]["lng"]],  # northeast
+                                       params["radius"]):
+        q_radar.put(dict(pos=(lat, lng), res=0))
+
+    q_radar.join()
+    logging.info("Finished in: {}".format(str(datetime.datetime.now() - start)))
+
+    logging.info("{} places to process...".format(len(g_places)))
+
+    # threading for detail search and popular times
+    for i in range(params["n_threads"]):
+        t = threading.Thread(target=worker_detail)
+        t.daemon = True
+        t.start()
+
+    for g_place_id in g_places:
+        q_detail.put(g_place_id)
+
+    q_detail.join()
+    logging.info("Finished in: {}".format(str(datetime.datetime.now() - start)))
+
+    return results
+
+
 def get_populartimes_from_search(place_identifier, get_detail=False):
     """
     request information for a place and parse current popularity
     :param place_identifier: name and address string
     :return:
     """
-
+    
     jdata = make_google_search_request(place_identifier)
 
     # get info from result array, has to be adapted if backend api changes
@@ -436,25 +436,13 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-def get_populartimes(api_key, place_id):
+def get_populartimes_by_place_id(api_key, place_id):
     """
     sends request to detail to get a search string
     and uses standard proto buffer to get additional information
     on the current status of popular times
+    :param api_key: api key
+    :param place_id: unique place_id from google
     :return: json details
     """
 
@@ -464,127 +452,24 @@ def get_populartimes(api_key, place_id):
     resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
     check_response_code(resp)
     detail = resp["result"]
-
-    return get_populartimes_by_detail(api_key, detail)
-
-
-def get_populartimes_by_detail(api_key, detail):
+    return format_and_add_param(detail, api_key, get_detail = False)
+    
+    
+def format_and_add_param(detail, api_key, get_detail = False):
     address = detail["formatted_address"] if "formatted_address" in detail else detail.get("vicinity", "")
-
-    place_identifier = "{} {}".format(detail["name"], address)
-
-    detail_json = {
-        "id": detail["place_id"],
-        "name": detail["name"],
-        "address": address,
-        "types": detail["types"],
-        "coordinates": detail["geometry"]["location"]
-    }
-
-    detail_json = add_optional_parameters(detail_json, detail, *get_populartimes_from_search(place_identifier))
-
-    return detail_json
-
-
-
-def get_by_detail(detail, get_detail=False):
-    place_identifier = "{} {}".format(detail["name"], detail["formatted_address"])
+    place_id = "{} {}".format(detail["name"], address)
 
     detail_json = {
         "place_id": detail["place_id"],
         "name": detail["name"],
-        "address": detail["formatted_address"],
-        "types": detail["types"],
-        "place_types": detail["place_types"],
+        "address": address,
+        "place_types": detail["types"],
         "coordinates": detail["geometry"]["location"]
     }
-
-    detail_json = add_optional_parameters(detail_json, detail, *get_populartimes_from_search(place_identifier, get_detail))
-
+    
+    detail_json = add_optional_parameters(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
+    
     return detail_json
 
 
-def check_response_code(resp):
-    """
-    check if query quota has been surpassed or other errors occured
-    :param resp: json response
-    :return:
-    """
-    if resp["status"] == "OK" or resp["status"] == "ZERO_RESULTS":
-        return
 
-    if resp["status"] == "REQUEST_DENIED":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "Request was denied, the API key is invalid.")
-
-    if resp["status"] == "OVER_QUERY_LIMIT":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "You exceeded your Query Limit for Google Places API Web Service, "
-                                    "check https://developers.google.com/places/web-service/usage "
-                                    "to upgrade your quota.")
-
-    if resp["status"] == "INVALID_REQUEST":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "The query string is malformed, "
-                                    "check if your formatting for lat/lng and radius is correct.")
-
-    if resp["status"] == "INVALID_REQUEST":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "The query string is malformed, "
-                                    "check if your formatting for lat/lng and radius is correct.")
-
-    if resp["status"] == "NOT_FOUND":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "The place ID was not found and either does not exist or was retired.")
-
-    raise PopulartimesException("Google Places " + resp["status"],
-                                "Unidentified error with the Places API, please check the response code")
-
-
-def run(_params):
-    """
-    wrap execution logic in method, for later external call
-    :return:
-    """
-    global params, g_places, q_radar, q_detail, results
-
-    start = datetime.datetime.now()
-
-    # shared variables
-    params = _params
-    q_radar, q_detail = Queue(), Queue()
-    g_places, results = dict(), list()
-
-    logging.info("Adding places to queue...")
-
-    # threading for radar search
-    for i in range(params["n_threads"]):
-        t = threading.Thread(target=worker_radar)
-        t.daemon = True
-        t.start()
-
-#     # cover search area with circles
-#     bounds = params["bounds"]
-#     for lat, lng in get_circle_centers([bounds["lower"]["lat"], bounds["lower"]["lng"]],  # southwest
-#                                        [bounds["upper"]["lat"], bounds["upper"]["lng"]],  # northeast
-#                                        params["radius"]):
-#         q_radar.put(dict(pos=(lat, lng), res=0))
-
-    # q_radar.join()
-    # logging.info("Finished in: {}".format(str(datetime.datetime.now() - start)))
-
-    logging.info("{} places to process...".format(len(g_places)))
-
-    # threading for detail search and popular times
-    for i in range(params["n_threads"]):
-        t = threading.Thread(target=worker_detail)
-        t.daemon = True
-        t.start()
-
-    for g_place_id in g_places:
-        q_detail.put(g_place_id)
-
-    q_detail.join()
-    logging.info("Finished in: {}".format(str(datetime.datetime.now() - start)))
-
-    return results
