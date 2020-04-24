@@ -5,22 +5,12 @@
 # -*- coding: utf-8 -*-
 
 import calendar
-import datetime
 import json
 import logging
-import math
-import re
 import ssl
-import threading
-
 import urllib.request
 import urllib.parse
-from time import sleep, time
-from queue import Queue
-import os
 import requests
-from geopy import Point
-from geopy.distance import vincenty, VincentyDistance
 
 
 # urls for google api web service
@@ -33,10 +23,7 @@ DETAIL_URL = BASE_URL + "details/json?placeid={}&key={}"
 USER_AGENT = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) "
                             "AppleWebKit/537.36 (KHTML, like Gecko) "
                             "Chrome/54.0.2840.98 Safari/537.36"}
-COMMON_HEADERS = {
-    "Accept-Language": "it-IT,it;q=0.9,en-US;q=0.8,en;q=0.7",
-    "Accept-Encoding": "gzip"
-}
+
 
 class PopulartimesException(Exception):
     """Exception raised for errors in the input.
@@ -54,8 +41,10 @@ class PopulartimesException(Exception):
 
 def get_places_by_search(query):
     """
-    Searches google for places according to the query and returns matching places & details
-    :param query: string to search for
+    :param query: search string for google
+    :type query: string
+    :return: List of places with name, place_id, address, co-ordinates, categories, and types.
+    :rtype list: 
     """
     places = []
     json = make_google_search_request(query) #consider adding other google search parameters
@@ -76,71 +65,6 @@ def get_places_by_search(query):
         })
 
     return places
-    
-def worker_radar():
-    """
-      worker that gets coordinates of queue and starts radar search
-      :return:
-      """
-    while True:
-        item = q_radar.get()
-        get_radar(item)
-        q_radar.task_done()
-
-def get_radar(item):
-    _lat, _lng = item["pos"]
-
-    # places - nearby search
-    # https://developers.google.com/places/web-service/search?hl=en#PlaceSearchRequests
-    radar_str = NEARBY_URL.format(
-        _lat, _lng, params["radius"], "|".join(params["type"]), params["API_key"]
-    )
-
-    # is this a next page request?
-    if item["res"] > 0:
-        # possibly wait remaining time until next_page_token becomes valid
-        min_wait = 2  # wait at least 2 seconds before the next page request
-        sec_passed = time() - item["last_req"]
-        if sec_passed < min_wait:
-            sleep(min_wait - sec_passed)
-        radar_str += "&pagetoken=" + item["next_page_token"]
-
-    resp = json.loads(requests.get(radar_str, auth=('user', 'pass')).text)
-    check_response_code(resp)
-
-    radar = resp["results"]
-
-    item["res"] += len(radar)
-    if item["res"] >= 60:
-        logging.warning("Result limit in search radius reached, some data may get lost")
-
-    bounds = params["bounds"]
-
-    # retrieve google ids for detail search
-    for place in radar:
-
-        geo = place["geometry"]["location"]
-        if bounds["lower"]["lat"] <= geo["lat"] <= bounds["upper"]["lat"] \
-                and bounds["lower"]["lng"] <= geo["lng"] <= bounds["upper"]["lng"]:
-            # this isn't thread safe, but we don't really care,
-            # since in worst case a set entry is simply overwritten
-            g_places[place["place_id"]] = place
-
-    # if there are more results, schedule next page requests
-    if "next_page_token" in resp:
-        item["next_page_token"] = resp["next_page_token"]
-        item["last_req"] = time()
-        q_radar.put(item)
-
-def worker_detail():
-    """
-    worker that gets item of queue and starts detailed data retrieval
-    :return:
-    """
-    while True:
-        item = q_detail.get()
-        get_detail(item)
-        q_detail.task_done()
 
 def get_popularity_for_day(popularity):
     """
@@ -219,7 +143,6 @@ def index_get(array, *argv):
         return None
 
 
-
 def add_optional_parameters(detail_json, detail, rating, rating_n, popularity, current_popularity, time_spent, detailFromGoogle={}):
     """
     check for optional return parameters and add them to the result json
@@ -263,7 +186,43 @@ def add_optional_parameters(detail_json, detail, rating, rating_n, popularity, c
 
     return detail_json
     
+def get_populartimes_by_place_id(api_key, place_id):
+    """
+    sends request to detail to get a search string
+    and uses standard proto buffer to get additional information
+    on the current status of popular times
+    :param api_key: api key
+    :param place_id: unique place_id from google
+    :return: json details
+    """
+
+    # places api - detail search
+    # https://developers.google.com/places/web-service/details?hl=de
+    detail_str = DETAIL_URL.format(place_id, api_key)
+    resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
+    check_response_code(resp)
+    detail = resp["result"]
+    print(detail)
+    return format_and_add_param(detail, api_key, get_detail = False)
     
+    
+def format_and_add_param(detail, api_key, get_detail = False):
+    address = detail["formatted_address"] if "formatted_address" in detail else detail.get("vicinity", "")
+    place_id = "{} {}".format(detail["name"], address)
+
+    detail_json = {
+        "place_id": detail["place_id"],
+        "name": detail["name"],
+        "address": address,
+        "place_types": detail["types"],
+        "coordinates": detail["geometry"]["location"]
+    }
+    print("FUCK ME IN THE ANUS", place_id)
+    
+    detail_json = add_optional_parameters(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
+    
+    return detail_json
+
     
 def make_google_search_request(query_string):
     params_url = {
@@ -331,54 +290,6 @@ def check_response_code(resp):
                                 "Unidentified error with the Places API, please check the response code")
 
 
-def run(_params):
-    """
-    wrap execution logic in method, for later external call
-    :return:
-    """
-    global params, g_places, q_radar, q_detail, results
-
-    start = datetime.datetime.now()
-
-    # shared variables
-    params = _params
-    q_radar, q_detail = Queue(), Queue()
-    g_places, results = dict(), list()
-
-    logging.info("Adding places to queue...")
-
-    # threading for radar search
-    for i in range(params["n_threads"]):
-        t = threading.Thread(target=worker_radar)
-        t.daemon = True
-        t.start()
-
-    # cover search area with circles
-    bounds = params["bounds"]
-    for lat, lng in get_circle_centers([bounds["lower"]["lat"], bounds["lower"]["lng"]],  # southwest
-                                       [bounds["upper"]["lat"], bounds["upper"]["lng"]],  # northeast
-                                       params["radius"]):
-        q_radar.put(dict(pos=(lat, lng), res=0))
-
-    q_radar.join()
-    logging.info("Finished in: {}".format(str(datetime.datetime.now() - start)))
-
-    logging.info("{} places to process...".format(len(g_places)))
-
-    # threading for detail search and popular times
-    for i in range(params["n_threads"]):
-        t = threading.Thread(target=worker_detail)
-        t.daemon = True
-        t.start()
-
-    for g_place_id in g_places:
-        q_detail.put(g_place_id)
-
-    q_detail.join()
-    logging.info("Finished in: {}".format(str(datetime.datetime.now() - start)))
-
-    return results
-
 
 def get_populartimes_from_search(place_identifier, get_detail=False):
     """
@@ -403,8 +314,11 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
     time_spent = index_get(info, 117, 0)
 
     detail = {}
+
     if (get_detail == True):
         detail = {
+            "current_popularity": index_get(info, 84, 7, 1),
+            "popular_times": index_get(info, 84, 0),
             "name": index_get(info, 11),
             "place_id": index_get(info, 78),
             "address": index_get(info, 39),
@@ -419,7 +333,6 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
 
     # extract wait times and convert to minutes
     if time_spent:
-
         nums = [float(f) for f in re.findall(r'\d*\.\d+|\d+', time_spent.replace(",", "."))]
         contains_min, contains_hour = "min" in time_spent, "hour" in time_spent or "hr" in time_spent
 
@@ -438,40 +351,61 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
 
 
 
-def get_populartimes_by_place_id(api_key, place_id):
-    """
-    sends request to detail to get a search string
-    and uses standard proto buffer to get additional information
-    on the current status of popular times
-    :param api_key: api key
-    :param place_id: unique place_id from google
-    :return: json details
-    """
 
-    # places api - detail search
-    # https://developers.google.com/places/web-service/details?hl=de
-    detail_str = DETAIL_URL.format(place_id, api_key)
-    resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
-    check_response_code(resp)
-    detail = resp["result"]
-    return format_and_add_param(detail, api_key, get_detail = False)
-    
-    
-def format_and_add_param(detail, api_key, get_detail = False):
-    address = detail["formatted_address"] if "formatted_address" in detail else detail.get("vicinity", "")
-    place_id = "{} {}".format(detail["name"], address)
+def myscrape(place_id):
 
     detail_json = {
-        "place_id": detail["place_id"],
-        "name": detail["name"],
-        "address": address,
-        "place_types": detail["types"],
-        "coordinates": detail["geometry"]["location"]
+        "place_id": place_id,
     }
-    
-    detail_json = add_optional_parameters(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
-    
+    detail_json = addparam(detail_json, detail, *get_populartimes_from_search(place_id, True))
     return detail_json
+
+
+def addparam(detail_json, detail, rating, rating_n, popularity, current_popularity, time_spent, detailFromGoogle={}):
+    """
+    check for optional return parameters and add them to the result json
+    :param detail_json:
+    :param detail:
+    :param rating:
+    :param rating_n:
+    :param popularity:
+    :param current_popularity:
+    :param time_spent:
+    :return:
+    """
+
+    if rating:
+        detail_json["rating"] = rating
+    elif "rating" in detail:
+        detail_json["rating"] = detail["rating"]
+
+    if rating_n:
+        detail_json["rating_n"] = rating_n
+
+    if "international_phone_number" in detail:
+        detail_json["international_phone_number"] = detail["international_phone_number"]
+
+    if current_popularity:
+        detail_json["current_popularity"] = current_popularity
+
+    if popularity:
+        popularity, wait_times = get_popularity_for_day(popularity)
+
+        detail_json["populartimes"] = popularity
+
+        if wait_times:
+            detail_json["time_wait"] = wait_times
+
+    if time_spent:
+        detail_json["time_spent"] = time_spent
+
+    if ("name" in detailFromGoogle):
+        detail_json.update(detailFromGoogle)
+
+    return detail_json
+    
+
+
 
 
 
