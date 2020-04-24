@@ -1,7 +1,4 @@
-#MyFile
-
-#Popular
-#!/usr/bin/env python
+#/usr/bin/env python
 # -*- coding: utf-8 -*-
 
 import calendar
@@ -11,6 +8,7 @@ import ssl
 import urllib.request
 import urllib.parse
 import requests
+import re
 
 
 # urls for google api web service
@@ -37,14 +35,14 @@ class PopulartimesException(Exception):
         self.expression = expression
         self.message = message
 
-
-
 def get_places_by_search(query):
     """
     :param query: search string for google
     :type query: string
     :return: List of places with name, place_id, address, co-ordinates, categories, and types.
     :rtype list: 
+    
+    This will return a list of places with details according to a google query: does not make API call    
     """
     places = []
     json = make_google_search_request(query) #consider adding other google search parameters
@@ -68,9 +66,10 @@ def get_places_by_search(query):
 
 def get_popularity_for_day(popularity):
     """
-    Returns popularity for day
+    Parses popularity from scrape to return popularity for day
     :param popularity:
-    :return:
+    :return: popularity_for_day
+    
     """
 
     # Initialize empty matrix with 0s
@@ -142,53 +141,9 @@ def index_get(array, *argv):
     except (IndexError, TypeError):
         return None
 
-
-def add_optional_parameters(detail_json, detail, rating, rating_n, popularity, current_popularity, time_spent, detailFromGoogle={}):
-    """
-    check for optional return parameters and add them to the result json
-    :param detail_json:
-    :param detail:
-    :param rating:
-    :param rating_n:
-    :param popularity:
-    :param current_popularity:
-    :param time_spent:
-    :return:
-    """
-
-    if rating:
-        detail_json["rating"] = rating
-    elif "rating" in detail:
-        detail_json["rating"] = detail["rating"]
-
-    if rating_n:
-        detail_json["rating_n"] = rating_n
-
-    if "international_phone_number" in detail:
-        detail_json["international_phone_number"] = detail["international_phone_number"]
-
-    if current_popularity:
-        detail_json["current_popularity"] = current_popularity
-
-    if popularity:
-        popularity, wait_times = get_popularity_for_day(popularity)
-
-        detail_json["populartimes"] = popularity
-
-        if wait_times:
-            detail_json["time_wait"] = wait_times
-
-    if time_spent:
-        detail_json["time_spent"] = time_spent
-
-    if ("name" in detailFromGoogle):
-        detail_json.update(detailFromGoogle)
-
-    return detail_json
-    
 def get_populartimes_by_place_id(api_key, place_id):
     """
-    sends request to detail to get a search string
+    sends request to Google Maps detail API to get a search string
     and uses standard proto buffer to get additional information
     on the current status of popular times
     :param api_key: api key
@@ -205,8 +160,13 @@ def get_populartimes_by_place_id(api_key, place_id):
     print(detail)
     return format_and_add_param(detail, api_key, get_detail = False)
     
-    
 def format_and_add_param(detail, api_key, get_detail = False):
+    """
+    Formats details & makes call to add_param_from_search to add details
+    :param detail: detail from Google Maps Details API
+    :param api_key: api key
+    :param get_detail: whether or not if populartimes should return all scrapable data in its own detail
+    """
     address = detail["formatted_address"] if "formatted_address" in detail else detail.get("vicinity", "")
     place_id = "{} {}".format(detail["name"], address)
 
@@ -217,13 +177,10 @@ def format_and_add_param(detail, api_key, get_detail = False):
         "place_types": detail["types"],
         "coordinates": detail["geometry"]["location"]
     }
-    print("FUCK ME IN THE ANUS", place_id)
-    
-    detail_json = add_optional_parameters(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
+    detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
     
     return detail_json
 
-    
 def make_google_search_request(query_string):
     params_url = {
         "tbm": "map",
@@ -257,48 +214,14 @@ def make_google_search_request(query_string):
     jdata = json.loads(data)["d"]
     return json.loads(jdata[4:])
 
-
-def check_response_code(resp):
-    """
-    check if query quota has been surpassed or other errors occured
-    :param resp: json response
-    :return:
-    """
-    if resp["status"] == "OK" or resp["status"] == "ZERO_RESULTS":
-        return
-
-    if resp["status"] == "REQUEST_DENIED":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "Request was denied, the API key is invalid.")
-
-    if resp["status"] == "OVER_QUERY_LIMIT":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "You exceeded your Query Limit for Google Places API Web Service, "
-                                    "check https://developers.google.com/places/web-service/usage "
-                                    "to upgrade your quota.")
-
-    if resp["status"] == "INVALID_REQUEST":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "The query string is malformed, "
-                                    "check if your formatting for lat/lng and radius is correct.")
-
-    if resp["status"] == "NOT_FOUND":
-        raise PopulartimesException("Google Places " + resp["status"],
-                                    "The place ID was not found and either does not exist or was retired.")
-
-    raise PopulartimesException("Google Places " + resp["status"],
-                                "Unidentified error with the Places API, please check the response code")
-
-
-
-def get_populartimes_from_search(place_identifier, get_detail=False):
+def get_populartimes_from_search(formatted_address, get_detail=False):
     """
     request information for a place and parse current popularity
-    :param place_identifier: name and address string
+    :param formatted_address: name and address string
     :return:
     """
     
-    jdata = make_google_search_request(place_identifier)
+    jdata = make_google_search_request(formatted_address)
 
     # get info from result array, has to be adapted if backend api changes
     info = index_get(jdata, 0, 1, 0, 14)
@@ -349,21 +272,9 @@ def get_populartimes_from_search(place_identifier, get_detail=False):
 
     return rating, rating_n, popular_times, current_popularity, time_spent, detail
 
-
-
-
-def myscrape(place_id):
-
-    detail_json = {
-        "place_id": place_id,
-    }
-    detail_json = addparam(detail_json, detail, *get_populartimes_from_search(place_id, True))
-    return detail_json
-
-
-def addparam(detail_json, detail, rating, rating_n, popularity, current_popularity, time_spent, detailFromGoogle={}):
+def add_param_from_search(detail_json, detail, rating, rating_n, popularity, current_popularity, time_spent, detailFromGoogle={}):
     """
-    check for optional return parameters and add them to the result json
+    check for optional return parameters using google search and add them to the result json
     :param detail_json:
     :param detail:
     :param rating:
@@ -371,7 +282,7 @@ def addparam(detail_json, detail, rating, rating_n, popularity, current_populari
     :param popularity:
     :param current_popularity:
     :param time_spent:
-    :return:
+    :return: detail_json with info from google search scrape
     """
 
     if rating:
@@ -404,8 +315,38 @@ def addparam(detail_json, detail, rating, rating_n, popularity, current_populari
 
     return detail_json
     
+def check_response_code(resp):
+    """
+    check if query quota has been surpassed or other errors occured
+    :param resp: json response
+    :return:
+    """
+    if resp["status"] == "OK" or resp["status"] == "ZERO_RESULTS":
+        return
 
+    if resp["status"] == "REQUEST_DENIED":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "Request was denied, the API key is invalid.")
 
+    if resp["status"] == "OVER_QUERY_LIMIT":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "You exceeded your Query Limit for Google Places API Web Service, "
+                                    "check https://developers.google.com/places/web-service/usage "
+                                    "to upgrade your quota.")
 
+    if resp["status"] == "INVALID_REQUEST":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "The query string is malformed, "
+                                    "check if your formatting for lat/lng and radius is correct.")
 
+    if resp["status"] == "NOT_FOUND":
+        raise PopulartimesException("Google Places " + resp["status"],
+                                    "The place ID was not found and either does not exist or was retired.")
 
+    raise PopulartimesException("Google Places " + resp["status"],
+                                "Unidentified error with the Places API, please check the response code")
+
+def get_populartimes_by_formatted_address(formatted_address):
+    detail_json = {}
+    detail_json = add_param_from_search(detail_json, *get_populartimes_from_search(formatted_address, True))
+    return detail_json
