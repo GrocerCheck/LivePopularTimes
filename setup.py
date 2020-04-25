@@ -31,7 +31,7 @@ setup(
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
     ],
-    keywords=['populartimes googlemaps live', 'googlemaps', 'scraper', 'crawler', 'populartimes']
+    keywords=['populartimes googlemaps live', 'googlemaps', 'scraper', 'crawler', 'populartimes'],
 
     # TODO
     # You can just specify the packages manually here if your project is
@@ -43,9 +43,6 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'requests', 'geopy'
+        'requests', 'urllib', 're', 
     ],
-    
-        ],
-    },
 )
