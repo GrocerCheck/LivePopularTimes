@@ -22,7 +22,7 @@ Google Maps API key https://developers.google.com/places/web-service/get-api-key
 
 ## livepopulartimes.get_populartimes_by_address(formatted_address)
 
-Retrieves information for a given address and adds populartimes, wait, time_spent and other data not accessible via Google Places by scraping and with API call.
+Retrieves information for a given address and adds populartimes, wait, time_spent and other data not accessible via Google Places by scraping and with API call, given a formatted address.
 + `livepopulartimes.get_populartimes_by_address(formatted_address)`
     + **formatted_address** 
         + str; address of location you are looking for, preferably in the following format:
@@ -52,7 +52,7 @@ Retrieves information for a given address and adds populartimes, wait, time_spen
 
 ## livepopulartimes.get_populartimes_by_PlaceID(api_key, place_id)
 
-Retrieves information for a given address and adds populartimes, wait, time_spent and other data not accessible via Google Places via Places API call & scraping
+Retrieves information for a given address and adds populartimes, wait, time_spent and other data not accessible via Google Places via Places API call & scraping, given a place_id.
 
 + `livepopulartimes.get_populartimes_by_PlaceID(api_key, place_id)`
     + **api_key**
@@ -105,3 +105,6 @@ Retrives Google Maps location data from search query
         + `categories`
         + `place_types`
     + **Refer to `example_output(get_places_by_search).txt)` for example output**
+
+
+Special thanks to m-wrzr's populartimes module for the framework upon which this is built.
