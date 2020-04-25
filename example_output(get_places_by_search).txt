@@ -1,0 +1,438 @@
+[
+    {
+        "name":"Corbeaux's London Market",
+        "place_id":"ChIJce4kUcmAhYARJYXzSyNbAtA",
+        "address":"2901 Sacramento St, San Francisco, CA 94115, United States",
+        "location":{
+            "lat":37.7888836,
+            "lng":-122.4407559
+        },
+        "categories":[
+            "Grocery store",
+            "Deli",
+            "Liquor store"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "deli"
+            ],
+            [
+                "liquor_store"
+            ]
+        ]
+    },
+    {
+        "name":"London Food Co-op",
+        "place_id":"ChIJ2R_sZQryLogRT8RRhaTJZy8",
+        "address":"621 Princess Ave, London, ON N5W 3L9",
+        "location":{
+            "lat":42.992987199999995,
+            "lng":-81.23283099999999
+        },
+        "categories":[
+            "Natural goods store"
+        ],
+        "place_types":[
+            [
+                "natural_foods_store"
+            ]
+        ]
+    },
+    {
+        "name":"United Supermarket",
+        "place_id":"ChIJcZp_GubtLogRgXHlB574AfM",
+        "address":"1062 Adelaide St N, London, ON N5Y 2N1",
+        "location":{
+            "lat":43.0093458,
+            "lng":-81.2408401
+        },
+        "categories":[
+            "Grocery store",
+            "Asian grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "asian_grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Superking Supermarket",
+        "place_id":"ChIJqSOkbRvxLogRfTWxjSW-E0Q",
+        "address":"785 Wonderland Rd S, London, ON N6K 1M6",
+        "location":{
+            "lat":42.9489863,
+            "lng":-81.29122
+        },
+        "categories":[
+            "Asian grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "asian_grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Covent Garden Market",
+        "place_id":"ChIJ8a8sqh3yLogR5bUJ-zrfBrg",
+        "address":"Covent Garden Market Bldg, 130 King St, London, ON N6A 1C5",
+        "location":{
+            "lat":42.9828131,
+            "lng":-81.2503452
+        },
+        "categories":[
+            "Grocery store",
+            "Farmers' market"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "farmers_market"
+            ]
+        ]
+    },
+    {
+        "name":"Old East Village Grocer",
+        "place_id":"ChIJt-t3RAvyLogRRKcZuKzlp-s",
+        "address":"630 Dundas St, London, ON N5W 2Y8",
+        "location":{
+            "lat":42.9892855,
+            "lng":-81.2308814
+        },
+        "categories":[
+            "Grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Festival Food-Mart",
+        "place_id":"ChIJR8sVStvzLogRLr2Nuta5Iwo",
+        "address":"456 Southdale Rd E, London, ON N6E 1A3",
+        "location":{
+            "lat":42.942456,
+            "lng":-81.242172
+        },
+        "categories":[
+            "Grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Remark Fresh Markets",
+        "place_id":"ChIJP28BamnwLogRmCb4EX25N80",
+        "address":"1190 Oxford St W, London, ON N6H 4N2",
+        "location":{
+            "lat":42.9744148,
+            "lng":-81.3217544
+        },
+        "categories":[
+            "Gourmet grocery store"
+        ],
+        "place_types":[
+            [
+                "gourmet_grocery_store"
+            ]
+        ]
+    },
+    {
+        "name":"Indo-Asian Groceries and Spices",
+        "place_id":"ChIJs0lA6TTwLogR3d8YRzYJqI4",
+        "address":"689 Oxford St W, London, ON N6H 1V1",
+        "location":{
+            "lat":42.9826075,
+            "lng":-81.2982152
+        },
+        "categories":[
+            "Asian grocery store",
+            "Beauty supply store",
+            "Grocery store",
+            "Indian grocery store",
+            "Indian restaurant",
+            "Organic shop",
+            "Rice shop",
+            "Spice store"
+        ],
+        "place_types":[
+            [
+                "asian_grocery_store"
+            ],
+            [
+                "beauty_supply_store"
+            ],
+            [
+                "grocery_store"
+            ],
+            [
+                "indian_grocery_store"
+            ],
+            [
+                "indian_restaurant",
+                "Indian"
+            ],
+            [
+                "organic_store"
+            ],
+            [
+                "rice_shop"
+            ],
+            [
+                "spice_store"
+            ]
+        ]
+    },
+    {
+        "name":"Food Island Supermarket",
+        "place_id":"ChIJX_NH4cvxLogRB7ZdjNVleUI",
+        "address":"530 Oxford St W, London, ON N6H 1T6",
+        "location":{
+            "lat":42.9827167,
+            "lng":-81.2903694
+        },
+        "categories":[
+            "Asian grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "asian_grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"The Grocery",
+        "place_id":"ChIJe1Pt6LscdkgR1yaQghzm0OY",
+        "address":"52-56 Kingsland Rd, Hackney, London E2 8DP, United Kingdom",
+        "location":{
+            "lat":51.528903899999996,
+            "lng":-0.0775836
+        },
+        "categories":[
+            "Grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"FreshCo Trafalgar & Highbury",
+        "place_id":"ChIJMfh5-oTyLogRzY28cXG-QaE",
+        "address":"1298 Trafalgar St, London, ON N5Z 1H9",
+        "location":{
+            "lat":42.985,
+            "lng":-81.2
+        },
+        "categories":[
+            "Grocery store"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ]
+        ]
+    },
+    {
+        "name":"Grocery Checkout Fresh Market",
+        "place_id":"ChIJe8b6qT3uLogRUQC9Ymdoq7o",
+        "address":"1151 Richmond St, London, ON N6A 3K7",
+        "location":{
+            "lat":43.008891,
+            "lng":-81.276276
+        },
+        "categories":[
+            "Grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Oriental Mart (Hanul Food Inc.)",
+        "place_id":"ChIJtUJImYLxLogR4se_ClXOoVk",
+        "address":"515 Wharncliffe Rd S Unit 4, London, ON N6J 2N1",
+        "location":{
+            "lat":42.9576163,
+            "lng":-81.26120809999999
+        },
+        "categories":[
+            "Grocery store",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Aladdin's Food",
+        "place_id":"ChIJubYTz8vxLogRSMgBoHS4j1A",
+        "address":"611 Wonderland Rd N #9, London, ON N6H 1T6",
+        "location":{
+            "lat":42.9813769,
+            "lng":-81.2895611
+        },
+        "categories":[
+            "Grocery store",
+            "Butcher shop",
+            "Meat processor",
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "butcher_shop"
+            ],
+            [
+                "meat_processor"
+            ],
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Sobeys North London",
+        "place_id":"ChIJAAAAAITuLogRmvPqJsP-WwA",
+        "address":"1595 Adelaide St N, London, ON N5X 4E8",
+        "location":{
+            "lat":43.036618999999995,
+            "lng":-81.257431
+        },
+        "categories":[
+            "Grocery store"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ]
+        ]
+    },
+    {
+        "name":"Westmount Halal Food Store",
+        "place_id":"ChIJlyS55wDxLogRBK99lShaph0",
+        "address":"490 Wonderland Rd S, London, ON N6K 3T1",
+        "location":{
+            "lat":42.9573964,
+            "lng":-81.291861
+        },
+        "categories":[
+            "Supermarket"
+        ],
+        "place_types":[
+            [
+                "supermarket"
+            ]
+        ]
+    },
+    {
+        "name":"Loblaws",
+        "place_id":"ChIJrePRPjzxLogRInxB_6UQjdA",
+        "address":"3040 Wonderland Rd S, London, ON N6L 1A6",
+        "location":{
+            "lat":42.9377259,
+            "lng":-81.27816779999999
+        },
+        "categories":[
+            "Grocery store",
+            "Bakery",
+            "Deli",
+            "Fruit and vegetable store",
+            "Pharmacy"
+        ],
+        "place_types":[
+            [
+                "grocery_store"
+            ],
+            [
+                "bakery"
+            ],
+            [
+                "deli"
+            ],
+            [
+                "fruit_and_vegetable_store"
+            ],
+            [
+                "pharmacy"
+            ]
+        ]
+    },
+    {
+        "name":"Metro",
+        "place_id":"ChIJ78vYXKryLogRpGuG0qP4vHE",
+        "address":"155 Clarke Rd, London, ON N5W 5C9",
+        "location":{
+            "lat":42.990649999999995,
+            "lng":-81.17053299999999
+        },
+        "categories":[
+            "Supermarket",
+            "Caterer",
+            "Grocery delivery service"
+        ],
+        "place_types":[
+            [
+                "supermarket"
+            ],
+            [
+                "catering_service"
+            ],
+            [
+                "grocery_delivery_service"
+            ]
+        ]
+    }
+]

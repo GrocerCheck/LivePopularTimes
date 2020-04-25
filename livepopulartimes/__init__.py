@@ -4,7 +4,6 @@
 from .crawler import get_populartimes_by_place_id
 from .crawler import get_populartimes_by_formatted_address
 from .crawler import get_places_by_search
-from .crawler import make_google_search_request
 
 import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
@@ -19,21 +18,27 @@ ENTRY POINT
 
 def get_populartimes_by_address(formatted_address):
     """
-    takes formatted address and 
+    retrieves populartimes & other location data for a given place by formatted address
+    :param formatted_address: Preferred format: "(*location name*) , *full address*, *city*, *province/state/etc*, *country*"
+    :type formatted_address: string
+    :return: json-formatted populartimes & current populartimes for a place (if applicable) alongside other scraped data
+    :Example:
+    
+    detail_json = get_by_PlaceID(APIKEY, "ChIJnS31ep9zhlQR2ns5dwJVvcg")
+    
+    .. warning:: Makes API call
     
     """
-    
     
     return get_populartimes_by_formatted_address(formatted_address)
 
 
 def get_populartimes_by_PlaceID(api_key, place_id):
     """
-    retrieves the current popularity for a given place by placeId
+    retrieves populartimes & other location data for a given place by placeId
     :param api_key:
     :param place_id:
     :return: json-formatted populartimes & current populartimes for a place (if applicable) alongside other scraped data
-    
     :Example:
     
     detail_json = get_by_PlaceID(APIKEY, "ChIJnS31ep9zhlQR2ns5dwJVvcg")
@@ -51,10 +56,9 @@ def get_places_by_search(query):
     :return: list of places with scraped details (refer to readme for complete list)
     :Example:
     
-    place_detail = get_places_by_search("supermarket campi bisenzio open now")
-    
+    places = get_places_by_search("pubs open in London")
     """
-    return get_places_by_search(query)
+    return get_places(query)
 
 
 

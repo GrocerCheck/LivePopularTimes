@@ -35,7 +35,7 @@ class PopulartimesException(Exception):
         self.expression = expression
         self.message = message
 
-def get_places_by_search(query):
+def get_places(query):
     """
     :param query: search string for google
     :type query: string
@@ -156,11 +156,10 @@ def get_populartimes_by_place_id(api_key, place_id):
     detail_str = DETAIL_URL.format(place_id, api_key)
     resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
     check_response_code(resp)
-    detail = resp["result"]
-    print(detail)
-    return format_and_add_param(detail, api_key, get_detail = False)
+    detail = resp["result"] #A lot of other data such as place reviews and opening hours, etc can be scraped off of `detail`
+    return format_and_add_param(detail, api_key, get_detail = True)
     
-def format_and_add_param(detail, api_key, get_detail = False):
+def format_and_add_param(detail, api_key, get_detail):
     """
     Formats details & makes call to add_param_from_search to add details
     :param detail: detail from Google Maps Details API
@@ -240,8 +239,6 @@ def get_populartimes_from_search(formatted_address, get_detail=False):
 
     if (get_detail == True):
         detail = {
-            "current_popularity": index_get(info, 84, 7, 1),
-            "popular_times": index_get(info, 84, 0),
             "name": index_get(info, 11),
             "place_id": index_get(info, 78),
             "address": index_get(info, 39),
@@ -251,7 +248,8 @@ def get_populartimes_from_search(formatted_address, get_detail=False):
             },
             "categories": index_get(info, 13),
             "place_types": index_get(info, 76),
-            
+            "current_popularity": index_get(info, 84, 7, 1),
+            "popular_times": index_get(info, 84, 0),
         }
 
     # extract wait times and convert to minutes
