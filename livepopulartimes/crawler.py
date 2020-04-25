@@ -278,7 +278,7 @@ def add_param_from_search(detail_json, detail, rating, rating_n, popularity, cur
     :param detail_json:
     :param detail:
     :param rating:
-    :param rating_n:
+    :param rating_n: number of ratings
     :param popularity:
     :param current_popularity:
     :param time_spent:
@@ -348,5 +348,6 @@ def check_response_code(resp):
 
 def get_populartimes_by_formatted_address(formatted_address):
     detail_json = {}
-    detail_json = add_param_from_search(detail_json, *get_populartimes_from_search(formatted_address, True))
+    detail = {}
+    detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(formatted_address, True))
     return detail_json

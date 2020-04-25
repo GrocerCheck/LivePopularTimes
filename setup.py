@@ -1,7 +1,3 @@
-"""
-https://github.com/ihasdapie/LivePopularTimes
-"""
-
 # Always prefer setuptools over distutils
 from setuptools import setup, find_packages
 # To use a consistent encoding
@@ -17,10 +13,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 setup(
     name='LivePopularTimes',
     version='1.0',
-    description='LivePopularTimes for Google Maps',
+    description='LivePopularTimes: A Google Maps scraper',
     long_description=long_description,
-    url='https://github.com/ihasdapie/LivePopularTimes',
-    author='riedmaph;m-wrzr;SweetyGott;ihasdapie',
+    url='https://github.com/GrocerCheck/LivePopularTimes',
+    author='ihasdapie',
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -31,9 +27,11 @@ setup(
         # TODO
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
-        'Programming Language :: Python :: 3.6.1',
+        'Programming Language :: Python :: 3.6',
+        'Programming Language :: Python :: 3.7',
+        'Programming Language :: Python :: 3.8',
     ],
-    keywords='populartimes googlemaps live',
+    keywords=['populartimes googlemaps live', 'googlemaps', 'scraper', 'crawler', 'populartimes']
 
     # TODO
     # You can just specify the packages manually here if your project is
@@ -47,15 +45,7 @@ setup(
     install_requires=[
         'requests', 'geopy'
     ],
-    setup_requires=["pytest-runner", ],
-    tests_require=["pytest", ],
-    # TODO
-    # To provide executable scripts, use entry points in preference to the
-    # "scripts" keyword. Entry points provide cross-platform support and allow
-    # pip to create the appropriate form of executable for the target platform.
-    entry_points={
-        'console_scripts': [
-            'populartimes=populartimes:execute',
+    
         ],
     },
 )
