@@ -187,6 +187,7 @@ def get_populartimes_by_place_id(api_key, place_id):
     resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
     check_response_code(resp)
     detail = resp["result"] #A lot of other data such as place reviews and opening hours, etc can be scraped off of `detail`
+    print(detail)
     return format_and_add_param(detail, api_key, get_detail = True)
     
 def format_and_add_param(detail, api_key, get_detail):
@@ -200,9 +201,10 @@ def format_and_add_param(detail, api_key, get_detail):
     place_id = "{} {}".format(detail["name"], address)
 
     detail_json = {
+
         "place_id": detail["place_id"],
         "name": detail["name"],
-        "address": address,
+        "hours": detail["opening_hours"],
         "place_types": detail["types"],
         "coordinates": detail["geometry"]["location"]
     }
