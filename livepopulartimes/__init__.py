@@ -33,7 +33,7 @@ SOFTWARE.
 
 from .crawler import get_populartimes_by_place_id
 from .crawler import get_populartimes_by_formatted_address
-from .crawler import get_places_by_search
+from .crawler import get_places
 
 import logging
 logging.getLogger(__name__).addHandler(logging.NullHandler())
