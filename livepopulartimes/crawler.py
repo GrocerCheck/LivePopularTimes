@@ -70,9 +70,9 @@ def get_places(query):
     :param query: search string for google
     :type query: string
     :return: List of places with name, place_id, address, co-ordinates, categories, and types.
-    :rtype list: 
-    
-    This will return a list of places with details according to a google query: does not make API call    
+    :rtype list:
+
+    This will return a list of places with details according to a google query: does not make API call
     """
     places = []
     json = make_google_search_request(query) #consider adding other google search parameters
@@ -99,7 +99,7 @@ def get_popularity_for_day(popularity):
     Parses popularity from scrape to return popularity for day
     :param popularity:
     :return: popularity_for_day
-    
+
     """
 
     # Initialize empty matrix with 0s
@@ -188,7 +188,7 @@ def get_populartimes_by_place_id(api_key, place_id):
     check_response_code(resp)
     detail = resp["result"] #A lot of other data such as place reviews and opening hours, etc can be scraped off of `detail`
     return format_and_add_param(detail, api_key, get_detail = True)
-    
+
 def format_and_add_param(detail, api_key, get_detail):
     """
     Formats details & makes call to add_param_from_search to add details
@@ -198,10 +198,10 @@ def format_and_add_param(detail, api_key, get_detail):
     """
     address = detail["formatted_address"] if "formatted_address" in detail else detail.get("vicinity", "")
     place_id = "{} {}".format(detail["name"], address)
-    
+
     try:
         hours = detail["opening_hours"]
-        
+
     except:
         hours = None
     detail_json = {
@@ -213,10 +213,12 @@ def format_and_add_param(detail, api_key, get_detail):
         "coordinates": detail["geometry"]["location"]
     }
     detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
-    
+
     return detail_json
 
 def make_google_search_request(query_string):
+    #Add Proxy Support
+
     params_url = {
         "tbm": "map",
         "tch": 1,
@@ -235,6 +237,7 @@ def make_google_search_request(query_string):
 
     search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
     # noinspection PyUnresolvedReferences
+    print(search_url)
     gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 
     resp = urllib.request.urlopen(urllib.request.Request(url=search_url, data=None, headers=USER_AGENT),
@@ -255,7 +258,7 @@ def get_populartimes_from_search(formatted_address, get_detail=False):
     :param formatted_address: name and address string
     :return:
     """
-    
+
     jdata = make_google_search_request(formatted_address)
 
     # get info from result array, has to be adapted if backend api changes
@@ -348,7 +351,7 @@ def add_param_from_search(detail_json, detail, rating, rating_n, popularity, cur
         detail_json.update(detailFromGoogle)
 
     return detail_json
-    
+
 def check_response_code(resp):
     """
     check if query quota has been surpassed or other errors occured
