@@ -216,9 +216,7 @@ def format_and_add_param(detail, api_key, get_detail):
 
     return detail_json
 
-def make_google_search_request(query_string):
-    #Add Proxy Support
-
+def make_google_search_request(query_string, proxy = False):
     params_url = {
         "tbm": "map",
         "tch": 1,
@@ -237,12 +235,16 @@ def make_google_search_request(query_string):
 
     search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
     # noinspection PyUnresolvedReferences
-    print(search_url)
-    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
 
-    resp = urllib.request.urlopen(urllib.request.Request(url=search_url, data=None, headers=USER_AGENT),
-                                  context=gcontext)
-    data = resp.read().decode('utf-8').split('/*""*/')[0]
+    if (proxy == False):
+        resp = requests.get(search_url)
+    else:
+        resp = request.get(search_url, )
+    data = resp.text.split('/*""*/')[0]
+
+    # resp = urllib.request.urlopen(urllib.request.Request(url=search_url, data=None, headers=USER_AGENT),
+    #                               context=gcontext)
+    # data = resp.read().decode('utf-8').split('/*""*/')[0]
 
     # find eof json
     jend = data.rfind("}")
