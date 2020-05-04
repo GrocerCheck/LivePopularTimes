@@ -239,7 +239,8 @@ def make_google_search_request(query_string, proxy = False):
     if (proxy == False):
         resp = requests.get(search_url)
     else:
-        resp = request.get(search_url, )
+        resp = request.get(search_url, proxies = proxy)
+
     data = resp.text.split('/*""*/')[0]
 
     # resp = urllib.request.urlopen(urllib.request.Request(url=search_url, data=None, headers=USER_AGENT),

@@ -46,10 +46,14 @@ ENTRY POINT
 
 
 
-def get_populartimes_by_address(formatted_address):
+def get_populartimes_by_address(formatted_address, proxy = False):
     """
     retrieves populartimes & other location data for a given place by formatted address
     :param formatted_address: Preferred format: "(*location name*) , *full address*, *city*, *province/state/etc*, *country*"
+    :param proxy: A dictionary of proxies of format {
+        "http" : "http://10.10.1.10:2138",
+        "https" : "http://10.10.1.10:1080",
+        }
     :type formatted_address: string
     :return: json-formatted populartimes & current populartimes for a place (if applicable) alongside other scraped data
     :Example:
@@ -60,8 +64,7 @@ def get_populartimes_by_address(formatted_address):
 
     """
 
-    return get_populartimes_by_formatted_address(formatted_address)
-
+    return get_populartimes_by_formatted_address(formatted_address, proxy)
 
 def get_populartimes_by_PlaceID(api_key, place_id):
     """
