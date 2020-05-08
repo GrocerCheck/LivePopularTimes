@@ -235,7 +235,6 @@ def make_google_search_request(query_string, proxy = False):
 
     search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
     # noinspection PyUnresolvedReferences
-
     if (proxy == False):
         resp = requests.get(search_url)
     else:
