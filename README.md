@@ -35,9 +35,6 @@ Retrieves information for a given address and adds populartimes, wait, time_spen
                     "https" : "http://10.10.1.10:1080",
                     `}
                     
-    :type formatted_address: string
-    :type proxy: dict/json
-    
     + **Example call**
         + `livepopulartimes.get_populartimes_by_address("(H-Mart Dunbar) 5557 Dunbar Street, Vancouver BC, Canada", proxy=proxy)`
 
