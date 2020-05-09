@@ -185,10 +185,10 @@ def get_populartimes_by_place_id(api_key, place_id):
     # places api - detail search
     # https://developers.google.com/places/web-service/details?hl=de
     detail_str = DETAIL_URL.format(place_id, api_key)
-    
-    
+
+
     #should include USERAGENTS
-    
+
     resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
     check_response_code(resp)
     detail = resp["result"] #A lot of other data such as place reviews and opening hours, etc can be scraped off of `detail`
@@ -238,7 +238,7 @@ def make_google_search_request(query_string, proxy = False):
               "!3b1"
     }
 
-    search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
+    search_url = "http://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
     # noinspection PyUnresolvedReferences
     if (proxy == False):
         resp = requests.get(search_url, headers=HEADERS)
