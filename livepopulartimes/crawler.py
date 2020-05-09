@@ -48,9 +48,10 @@ NEARBY_URL = BASE_URL + "nearbysearch/json?location={},{}&radius={}&types={}&key
 DETAIL_URL = BASE_URL + "details/json?placeid={}&key={}"
 
 # user agent for populartimes request
-USER_AGENT = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/54.0.2840.98 Safari/537.36"}
+
+HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/54.0.2840.98 Safari/537.36"}
 
 
 class PopulartimesException(Exception):
@@ -184,6 +185,10 @@ def get_populartimes_by_place_id(api_key, place_id):
     # places api - detail search
     # https://developers.google.com/places/web-service/details?hl=de
     detail_str = DETAIL_URL.format(place_id, api_key)
+    
+    
+    #should include USERAGENTS
+    
     resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
     check_response_code(resp)
     detail = resp["result"] #A lot of other data such as place reviews and opening hours, etc can be scraped off of `detail`
@@ -236,9 +241,9 @@ def make_google_search_request(query_string, proxy = False):
     search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
     # noinspection PyUnresolvedReferences
     if (proxy == False):
-        resp = requests.get(search_url)
+        resp = requests.get(search_url, headers=HEADERS)
     else:
-        resp = request.get(search_url, proxies = proxy)
+        resp = requests.get(search_url, proxies = proxy, headers=HEADERS)
 
     data = resp.text.split('/*""*/')[0]
 
@@ -254,14 +259,14 @@ def make_google_search_request(query_string, proxy = False):
     jdata = json.loads(data)["d"]
     return json.loads(jdata[4:])
 
-def get_populartimes_from_search(formatted_address, get_detail=False):
+def get_populartimes_from_search(formatted_address, get_detail=False, proxy = False):
     """
     request information for a place and parse current popularity
     :param formatted_address: name and address string
     :return:
     """
 
-    jdata = make_google_search_request(formatted_address)
+    jdata = make_google_search_request(formatted_address, proxy = proxy)
 
     # get info from result array, has to be adapted if backend api changes
     info = index_get(jdata, 0, 1, 0, 14)
@@ -385,8 +390,8 @@ def check_response_code(resp):
     raise PopulartimesException("Google Places " + resp["status"],
                                 "Unidentified error with the Places API, please check the response code")
 
-def get_populartimes_by_formatted_address(formatted_address):
+def get_populartimes_by_formatted_address(formatted_address, proxy = False):
     detail_json = {}
     detail = {}
-    detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(formatted_address, True))
+    detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(formatted_address, get_detail=True, proxy=proxy))
     return detail_json
