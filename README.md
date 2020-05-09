@@ -27,9 +27,16 @@ Retrieves information for a given address and adds populartimes, wait, time_spen
     + **formatted_address** 
         + str; address of location you are looking for, preferably in the following format:
             + "(*location name*) , *full address*, *city*, *province/state/etc*, *country*"
-    
+    + **proxy**
+        + default = False
+        + proxies ip in format 
+                    `{
+                    "http" : "http://10.10.1.10:2138",
+                    "https" : "http://10.10.1.10:1080",
+                    `}
+                    
     + **Example call**
-        + `livepopulartimes.get_populartimes_by_address("(H-Mart Dunbar) 5557 Dunbar Street, Vancouver BC, Canada")`
+        + `livepopulartimes.get_populartimes_by_address("(H-Mart Dunbar) 5557 Dunbar Street, Vancouver BC, Canada", proxy=proxy)`
 
 + **Response**
     + The information present for places can vary. Therefore *popularity*, *current_popularity*, *rating*, *rating_n*, *time_wait*, *time_spent* and *phone* are optional return parameters and only present if available.

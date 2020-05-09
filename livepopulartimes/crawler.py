@@ -48,9 +48,10 @@ NEARBY_URL = BASE_URL + "nearbysearch/json?location={},{}&radius={}&types={}&key
 DETAIL_URL = BASE_URL + "details/json?placeid={}&key={}"
 
 # user agent for populartimes request
-USER_AGENT = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) "
-                            "AppleWebKit/537.36 (KHTML, like Gecko) "
-                            "Chrome/54.0.2840.98 Safari/537.36"}
+
+HEADERS = {"User-Agent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_12_1) "
+    "AppleWebKit/537.36 (KHTML, like Gecko) "
+    "Chrome/54.0.2840.98 Safari/537.36"}
 
 
 class PopulartimesException(Exception):
@@ -70,9 +71,9 @@ def get_places(query):
     :param query: search string for google
     :type query: string
     :return: List of places with name, place_id, address, co-ordinates, categories, and types.
-    :rtype list: 
-    
-    This will return a list of places with details according to a google query: does not make API call    
+    :rtype list:
+
+    This will return a list of places with details according to a google query: does not make API call
     """
     places = []
     json = make_google_search_request(query) #consider adding other google search parameters
@@ -99,7 +100,7 @@ def get_popularity_for_day(popularity):
     Parses popularity from scrape to return popularity for day
     :param popularity:
     :return: popularity_for_day
-    
+
     """
 
     # Initialize empty matrix with 0s
@@ -184,11 +185,15 @@ def get_populartimes_by_place_id(api_key, place_id):
     # places api - detail search
     # https://developers.google.com/places/web-service/details?hl=de
     detail_str = DETAIL_URL.format(place_id, api_key)
+    
+    
+    #should include USERAGENTS
+    
     resp = json.loads(requests.get(detail_str, auth=('user', 'pass')).text)
     check_response_code(resp)
     detail = resp["result"] #A lot of other data such as place reviews and opening hours, etc can be scraped off of `detail`
     return format_and_add_param(detail, api_key, get_detail = True)
-    
+
 def format_and_add_param(detail, api_key, get_detail):
     """
     Formats details & makes call to add_param_from_search to add details
@@ -198,10 +203,10 @@ def format_and_add_param(detail, api_key, get_detail):
     """
     address = detail["formatted_address"] if "formatted_address" in detail else detail.get("vicinity", "")
     place_id = "{} {}".format(detail["name"], address)
-    
+
     try:
         hours = detail["opening_hours"]
-        
+
     except:
         hours = None
     detail_json = {
@@ -213,10 +218,10 @@ def format_and_add_param(detail, api_key, get_detail):
         "coordinates": detail["geometry"]["location"]
     }
     detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(place_id, get_detail))
-    
+
     return detail_json
 
-def make_google_search_request(query_string):
+def make_google_search_request(query_string, proxy = False):
     params_url = {
         "tbm": "map",
         "tch": 1,
@@ -235,11 +240,16 @@ def make_google_search_request(query_string):
 
     search_url = "https://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
     # noinspection PyUnresolvedReferences
-    gcontext = ssl.SSLContext(ssl.PROTOCOL_TLSv1)
+    if (proxy == False):
+        resp = requests.get(search_url, headers=HEADERS)
+    else:
+        resp = requests.get(search_url, proxies = proxy, headers=HEADERS)
 
-    resp = urllib.request.urlopen(urllib.request.Request(url=search_url, data=None, headers=USER_AGENT),
-                                  context=gcontext)
-    data = resp.read().decode('utf-8').split('/*""*/')[0]
+    data = resp.text.split('/*""*/')[0]
+
+    # resp = urllib.request.urlopen(urllib.request.Request(url=search_url, data=None, headers=USER_AGENT),
+    #                               context=gcontext)
+    # data = resp.read().decode('utf-8').split('/*""*/')[0]
 
     # find eof json
     jend = data.rfind("}")
@@ -249,14 +259,14 @@ def make_google_search_request(query_string):
     jdata = json.loads(data)["d"]
     return json.loads(jdata[4:])
 
-def get_populartimes_from_search(formatted_address, get_detail=False):
+def get_populartimes_from_search(formatted_address, get_detail=False, proxy = False):
     """
     request information for a place and parse current popularity
     :param formatted_address: name and address string
     :return:
     """
-    
-    jdata = make_google_search_request(formatted_address)
+
+    jdata = make_google_search_request(formatted_address, proxy = proxy)
 
     # get info from result array, has to be adapted if backend api changes
     info = index_get(jdata, 0, 1, 0, 14)
@@ -348,7 +358,7 @@ def add_param_from_search(detail_json, detail, rating, rating_n, popularity, cur
         detail_json.update(detailFromGoogle)
 
     return detail_json
-    
+
 def check_response_code(resp):
     """
     check if query quota has been surpassed or other errors occured
@@ -380,8 +390,8 @@ def check_response_code(resp):
     raise PopulartimesException("Google Places " + resp["status"],
                                 "Unidentified error with the Places API, please check the response code")
 
-def get_populartimes_by_formatted_address(formatted_address):
+def get_populartimes_by_formatted_address(formatted_address, proxy = False):
     detail_json = {}
     detail = {}
-    detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(formatted_address, True))
+    detail_json = add_param_from_search(detail_json, detail, *get_populartimes_from_search(formatted_address, get_detail=True, proxy=proxy))
     return detail_json
