@@ -58,9 +58,7 @@ def get_populartimes_by_address(formatted_address, proxy = False):
     :return: json-formatted populartimes & current populartimes for a place (if applicable) alongside other scraped data
     :Example:
 
-    detail_json = get_by_PlaceID(APIKEY, "ChIJnS31ep9zhlQR2ns5dwJVvcg")
-
-    .. warning:: Makes API call
+    detail_json = get_populartimes_by_address("(Costco) 605 Expo Blvd, Vancouver, BC V6B 1V4, Canada", proxy = proxy)
 
     """
 
@@ -74,7 +72,7 @@ def get_populartimes_by_PlaceID(api_key, place_id):
     :return: json-formatted populartimes & current populartimes for a place (if applicable) alongside other scraped data
     :Example:
 
-    detail_json = get_by_PlaceID(APIKEY, "ChIJnS31ep9zhlQR2ns5dwJVvcg")
+    detail_json = get_populartimes_by_PlaceID(APIKEY, "ChIJnS31ep9zhlQR2ns5dwJVvcg")
 
     .. warning:: Makes API call
 
