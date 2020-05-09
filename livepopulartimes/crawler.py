@@ -239,6 +239,8 @@ def make_google_search_request(query_string, proxy = False):
     }
 
     search_url = "http://www.google.com/search?" + "&".join(k + "=" + str(v) for k, v in params_url.items())
+    # TODO check for 404
+    # But this should never be a big problem because it is a search request
     # noinspection PyUnresolvedReferences
     if (proxy == False):
         resp = requests.get(search_url, headers=HEADERS)
