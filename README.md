@@ -83,9 +83,9 @@ Retrieves information for a given address and adds populartimes, wait, time_spen
         + `popular_times` *popular_times is "raw" data, please refer to example output for details*
         + `address`
         + `location`
-        + `hours`
             + `lat`
             + `lng`
+        + `hours`
         + `categories`
         + `place_types`
     + **Refer to `example_output(get_populartimes_by_PlaceID).json)` for example output**
