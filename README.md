@@ -13,7 +13,7 @@ Google Maps API key https://developers.google.com/places/web-service/get-api-key
 ##### Options:
 1. `python3 -m pip install --upgrade git+https://github.com/GrocerCheck/LivePopularTimes`
 2. `clone` the repository, `cd` into the populartimes directory and run `pip install .`
-3. **Note**: The library is not *yet* available via PyPI
+3. `python3 -m pip install LivePopularTimes`
 
 ## Usage  
 
