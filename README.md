@@ -11,18 +11,22 @@ Google Maps API key https://developers.google.com/places/web-service/get-api-key
 ### Installation: 
 
 ##### Options:
-1. `python3 -m pip install --upgrade git+https://github.com/GrocerCheck/LivePopularTimes`
-2. `clone` the repository, `cd` into the populartimes directory and run `pip install .`
-3. `python3 -m pip install LivePopularTimes`
+1. For most current version: `python3 -m pip install --upgrade git+https://github.com/GrocerCheck/LivePopularTimes`
+2. `git clone` the repository, `cd` into the populartimes directory and run `pip install .`
+3. Possibly outdated: `python3 -m pip install LivePopularTimes`
 
 ## Usage  
 
 - Please note that certain functions of this module use the Google Places Web API, which is billable to Google.
 - Functions that accept api keys in their arguments will make API calls, and vice versa (self-explanatory)
+- If you're trying to reduce API usage a typical workflow may look like:
+    1. Get PlaceIDs & addresses https://developers.google.com/places/web-service/search#PlaceSearchRequests
+    2. Create formatted addresses. You may need to use `get_populartimes_by_Place_ID` to get more address data if necessary. This performs a reverse lookup by placeID.
+    3. use `get_populartimes_by_address` to collect data without API use!
 
 ## livepopulartimes.get_populartimes_by_address(formatted_address)
 
-Retrieves information for a given address and adds populartimes, wait, time_spent and other data not accessible via Google Places by scraping and with API call, given a formatted address.
+Retrieves information for a given address and adds populartimes, wait, time_spent and other data not accessible via Google Places by scraping given a formatted address. **Does not make an API call!**
 + `livepopulartimes.get_populartimes_by_address(formatted_address)`
     + **formatted_address** 
         + str; address of location you are looking for, preferably in the following format:
@@ -91,11 +95,11 @@ Retrieves information for a given address and adds populartimes, wait, time_spen
     + **Refer to `example_output(get_populartimes_by_PlaceID).json)` for example output**
 
 
-## livepopulartimes.get_places_by_search(query)
+## livepopulartimes.get_places_by_search(api_key, query)
 
 Retrives Google Maps location data from search query
 
-+ `livepopulartimes.get_populartimes_by_PlaceID(api_key, place_id)`
++ `livepopulartimes.get_populartimes_by_search(api_key, query)`
     + **query**
         + str; Google search query
     + **Example call**
