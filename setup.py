@@ -12,11 +12,12 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='LivePopularTimes',
-    version='1.0',
+    version='1.1',
     description='LivePopularTimes: A Google Maps scraper',
     long_description=long_description,
     url='https://github.com/GrocerCheck/LivePopularTimes',
-    author='ihasdapie',
+    author='Brian Chen',
+    author_email = 'brianchen.chen@mail.utoronto.ca',
     license='MIT',
     classifiers=[
         'Development Status :: 4 - Beta',
@@ -24,7 +25,6 @@ setup(
         'Topic :: Software Development :: Build Tools',
         'License :: OSI Approved :: MIT License',
 
-        # TODO
         # Specify the Python versions you support here. In particular, ensure
         # that you indicate whether you support Python 2, Python 3 or both.
         'Programming Language :: Python :: 3.6',
@@ -43,6 +43,13 @@ setup(
     # requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'requests', 
+        'requests',
+        'calendar',
+        'json',
+        'ssl',
+        'logging',
+        'urllib',
+        're'
     ],
+
 )

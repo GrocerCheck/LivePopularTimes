@@ -6,7 +6,7 @@ LICENSE
 
 MIT License
 
-Copyright (c) 2020 ihasdapie
+Copyright (c) 2020 Brian Chen
 
 Copyright (c) 2020 TheJoin95
 Copyright (c) 2018 m-wrzr

@@ -1,5 +1,3 @@
-
-
 # Live Popular Times
 
 A library that extends the populartimes module to include support for **Live** *Google Maps* popular times data, which is currently inaccessible via Google's API.
