@@ -33,8 +33,6 @@ SOFTWARE.
 
 import calendar
 import json
-import logging
-import ssl
 import urllib.request
 import urllib.parse
 import requests

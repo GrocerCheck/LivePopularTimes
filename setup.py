@@ -12,9 +12,10 @@ with open(path.join(here, 'README.md'), encoding='utf-8') as f:
 
 setup(
     name='LivePopularTimes',
-    version='1.1',
+    version='1.3',
     description='LivePopularTimes: A Google Maps scraper',
     long_description=long_description,
+    long_description_content_type='text/markdown',
     url='https://github.com/GrocerCheck/LivePopularTimes',
     author='Brian Chen',
     author_email = 'brianchen.chen@mail.utoronto.ca',
@@ -30,6 +31,7 @@ setup(
         'Programming Language :: Python :: 3.6',
         'Programming Language :: Python :: 3.7',
         'Programming Language :: Python :: 3.8',
+        'Programming Language :: Python :: 3.9',
     ],
     keywords=['populartimes googlemaps live', 'googlemaps', 'scraper', 'crawler', 'populartimes'],
 
@@ -44,12 +46,6 @@ setup(
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
         'requests',
-        'calendar',
-        'json',
-        'ssl',
-        'logging',
-        'urllib',
-        're'
     ],
 
 )

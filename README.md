@@ -1,5 +1,4 @@
 # Live Popular Times
-
 A library that extends the populartimes module to include support for **Live** *Google Maps* popular times data, which is currently inaccessible via Google's API.
 ## Getting Started
 
@@ -115,6 +114,5 @@ Retrives Google Maps location data from search query
         + `categories`
         + `place_types`
     + **Refer to `example_output(get_places_by_search).txt)` for example output**
-
 
 Special thanks to m-wrzr's populartimes module for the framework upon which this is built.
